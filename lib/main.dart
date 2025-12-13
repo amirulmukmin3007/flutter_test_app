@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/config/theme.dart';
+import 'package:flutter_test_app/features/display/bloc/display_bloc.dart';
+import 'package:flutter_test_app/features/display/repositories/display_repository.dart';
+import 'package:flutter_test_app/shared/screens/splashscreen.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              DisplayBloc(displayRepository: DisplayRepository())
+                ..add(DisplayLoadData()),
+        ),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -9,12 +25,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: flutterTestAppTheme(),
+      home: Splashscreen(),
     );
   }
 }
