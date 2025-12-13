@@ -1,4 +1,4 @@
-:flutter_test_app:
+#flutter_test_app
 
 Main Features:
 - Display Product List
