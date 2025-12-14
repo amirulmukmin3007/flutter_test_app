@@ -1,17 +1,23 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/config/formatter.dart';
+import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
 import 'package:flutter_test_app/features/display/models/product_model.dart';
 import 'package:flutter_test_app/shared/widgets/custom_fullscreen.dart';
 
-class CustomModalSheet extends StatefulWidget {
-  const CustomModalSheet({super.key, required this.product});
+class CustomViewDetailsModalSheet extends StatefulWidget {
+  const CustomViewDetailsModalSheet({super.key, required this.product});
 
   final ProductModel product;
 
   @override
-  State<CustomModalSheet> createState() => _CustomModalSheetState();
+  State<CustomViewDetailsModalSheet> createState() =>
+      _CustomViewDetailsModalSheetState();
 }
 
-class _CustomModalSheetState extends State<CustomModalSheet> {
+class _CustomViewDetailsModalSheetState
+    extends State<CustomViewDetailsModalSheet> {
   void _showFullscreenImage() {
     Navigator.push(
       context,
@@ -24,6 +30,7 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = Formatter();
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -152,7 +159,7 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'RM${widget.product.price.toStringAsFixed(2)}',
+                      'RM${formatter.addComma(widget.product.price.toStringAsFixed(2))}',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -179,20 +186,33 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
                     const SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${widget.product.title} added to cart!',
-                              ),
-                              duration: const Duration(seconds: 2),
-                            ),
+                      child: BlocBuilder<CartBloc, CartState>(
+                        builder: (context, cartState) {
+                          final cartBloc = context.read<CartBloc>();
+                          final isInCart = cartBloc.isInCart(widget.product.id);
+                          return ElevatedButton.icon(
+                            onPressed: isInCart
+                                ? null
+                                : () {
+                                    context.read<CartBloc>().add(
+                                      CartAddItem(product: widget.product),
+                                    );
+
+                                    Navigator.pop(context);
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          '${widget.product.title} added to cart!',
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                            icon: const Icon(FluentIcons.cart_16_filled),
+                            label: const Text('Add to Cart'),
                           );
                         },
-                        icon: const Icon(Icons.shopping_cart),
-                        label: const Text('Add to Cart'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -203,6 +223,182 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
           ),
         );
       },
+    );
+  }
+}
+
+class CustomPaymentModalSheet extends StatelessWidget {
+  final CartState state;
+
+  const CustomPaymentModalSheet({super.key, required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    final subtotal = state.total;
+    final tax = subtotal * 0.06;
+    final total = subtotal + tax;
+    final formatter = Formatter();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Order Summary',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${state.itemCount} ${state.itemCount == 1 ? 'item' : 'items'}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Subtotal',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                ),
+                Text(
+                  'RM${formatter.addComma(subtotal.toStringAsFixed(2))}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'SST (6%)',
+                  style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                ),
+                Text(
+                  'RM${formatter.addComma(tax.toStringAsFixed(2))}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            Divider(color: Colors.grey.shade300, thickness: 1),
+            const SizedBox(height: 12),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Total',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  'RM${formatter.addComma(total.toStringAsFixed(2))}',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Proceed to Payment'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Items: ${state.itemCount}'),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Total: RM${formatter.addComma(total.toStringAsFixed(2))}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Continue'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.payment),
+                label: const Text('Proceed to Payment'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

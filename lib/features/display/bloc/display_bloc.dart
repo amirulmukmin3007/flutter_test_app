@@ -9,8 +9,8 @@ part 'display_state.dart';
 class DisplayBloc extends Bloc<DisplayEvent, DisplayState> {
   final DisplayRepository _displayRepository;
 
-  DisplayBloc({required DisplayRepository displayRepository})
-    : _displayRepository = displayRepository,
+  DisplayBloc({required DisplayRepository repository})
+    : _displayRepository = repository,
       super(DisplayInitial()) {
     on<DisplayLoadData>(_loadData);
   }

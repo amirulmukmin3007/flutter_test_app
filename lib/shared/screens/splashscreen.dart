@@ -103,7 +103,9 @@ class _SplashscreenState extends State<Splashscreen>
                                     borderRadius: BorderRadius.circular(30),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.2,
+                                        ),
                                         blurRadius: 30,
                                         offset: const Offset(0, 10),
                                       ),
@@ -126,18 +128,6 @@ class _SplashscreenState extends State<Splashscreen>
                                     fontWeight: FontWeight.bold,
                                     color: colors.tertiary,
                                     letterSpacing: 1,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                // Tagline
-                                Text(
-                                  'Shop Smart, Live Better',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: colors.tertiary,
-                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ],
