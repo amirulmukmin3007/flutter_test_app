@@ -1,6 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/config/formatter.dart';
 import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
 import 'package:flutter_test_app/features/display/models/product_model.dart';
 import 'package:flutter_test_app/shared/widgets/custom_fullscreen.dart';
@@ -27,6 +28,7 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = Formatter();
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.5,
@@ -155,7 +157,7 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'RM${widget.product.price.toStringAsFixed(2)}',
+                      'RM${formatter.addComma(widget.product.price.toStringAsFixed(2))}',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

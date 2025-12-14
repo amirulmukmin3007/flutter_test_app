@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/config/formatter.dart';
 import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
 import 'package:flutter_test_app/features/display/models/product_model.dart';
 
@@ -11,6 +13,7 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = Formatter();
     return BlocBuilder<CartBloc, CartState>(
       builder: (context, cartState) {
         final cartBloc = context.read<CartBloc>();
@@ -33,9 +36,24 @@ class CustomCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image: NetworkImage(product.imageUrl),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: CachedNetworkImage(
+                            imageUrl: product.imageUrl,
                             fit: BoxFit.cover,
+                            placeholder: (context, url) => Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Icon(
+                              Icons.error_outline,
+                              color: Colors.grey.shade400,
+                            ),
                           ),
                         ),
                       ),
@@ -103,7 +121,7 @@ class CustomCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'RM${product.price.toStringAsFixed(2)}',
+                          'RM${formatter.addComma(product.price.toStringAsFixed(2))}',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

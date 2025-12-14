@@ -1,5 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/config/formatter.dart';
 import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
 import 'package:flutter_test_app/features/display/models/product_model.dart';
 
@@ -58,14 +61,13 @@ class CartScreen extends StatelessWidget {
       ),
       body: BlocBuilder<CartBloc, CartState>(
         builder: (context, state) {
-          // Empty Cart
           if (state.itemCount == 0) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.shopping_cart_outlined,
+                    FluentIcons.cart_16_filled,
                     size: 100,
                     color: Colors.grey.shade400,
                   ),
@@ -88,8 +90,8 @@ class CartScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    icon: const Icon(Icons.shopping_bag),
-                    label: const Text('Start Shopping'),
+                    icon: const Icon(FluentIcons.shopping_bag_16_filled),
+                    label: const Text('View Products'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
@@ -102,10 +104,8 @@ class CartScreen extends StatelessWidget {
             );
           }
 
-          // Cart with Items
           return Column(
             children: [
-              // Cart Items List
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -117,7 +117,6 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
 
-              // Cart Summary
               CartSummary(state: state),
             ],
           );
@@ -134,6 +133,7 @@ class CartItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = Formatter();
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -141,22 +141,33 @@ class CartItemCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image
             Container(
               width: 80,
               height: 80,
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: NetworkImage(product.imageUrl),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: CachedNetworkImage(
+                  imageUrl: product.imageUrl,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) =>
+                      Icon(Icons.error_outline, color: Colors.grey.shade400),
                 ),
               ),
             ),
             const SizedBox(width: 12),
 
-            // Product Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +183,6 @@ class CartItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Category Tag
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -199,7 +209,6 @@ class CartItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Rating
                   Row(
                     children: [
                       const Icon(Icons.star, size: 14, color: Colors.amber),
@@ -216,9 +225,8 @@ class CartItemCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // Price
                   Text(
-                    'RM${product.price.toStringAsFixed(2)}',
+                    'RM${formatter.addComma(product.price.toStringAsFixed(2))}',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -229,7 +237,6 @@ class CartItemCard extends StatelessWidget {
               ),
             ),
 
-            // Delete Button
             IconButton(
               onPressed: () {
                 showDialog(
@@ -292,8 +299,9 @@ class CartSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final subtotal = state.total;
-    final tax = subtotal * 0.06; // 6% tax
+    final tax = subtotal * 0.06;
     final total = subtotal + tax;
+    final formatter = Formatter();
 
     return Container(
       decoration: BoxDecoration(
@@ -312,7 +320,6 @@ class CartSummary extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Summary Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -348,7 +355,6 @@ class CartSummary extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Subtotal
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -357,7 +363,7 @@ class CartSummary extends StatelessWidget {
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                 ),
                 Text(
-                  'RM${subtotal.toStringAsFixed(2)}',
+                  'RM${formatter.addComma(subtotal.toStringAsFixed(2))}',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -368,7 +374,6 @@ class CartSummary extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // Tax
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -377,7 +382,7 @@ class CartSummary extends StatelessWidget {
                   style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
                 ),
                 Text(
-                  'RM${tax.toStringAsFixed(2)}',
+                  'RM${formatter.addComma(tax.toStringAsFixed(2))}',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -391,7 +396,6 @@ class CartSummary extends StatelessWidget {
             Divider(color: Colors.grey.shade300, thickness: 1),
             const SizedBox(height: 12),
 
-            // Total
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -400,7 +404,7 @@ class CartSummary extends StatelessWidget {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  'RM${total.toStringAsFixed(2)}',
+                  'RM${formatter.addComma(total.toStringAsFixed(2))}',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -411,12 +415,10 @@ class CartSummary extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Checkout Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // Navigate to payment page
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -428,14 +430,12 @@ class CartSummary extends StatelessWidget {
                           Text('Items: ${state.itemCount}'),
                           const SizedBox(height: 8),
                           Text(
-                            'Total: RM${total.toStringAsFixed(2)}',
+                            'Total: RM${formatter.addComma(total.toStringAsFixed(2))}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          const Text('Payment functionality coming soon!'),
                         ],
                       ),
                       actions: [
@@ -446,8 +446,6 @@ class CartSummary extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            // TODO: Navigate to payment page
-                            // Navigator.pushNamed(context, '/payment');
                           },
                           child: const Text('Continue'),
                         ),
