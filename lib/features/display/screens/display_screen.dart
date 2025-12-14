@@ -69,7 +69,7 @@ class _DisplayScreenState extends State<DisplayScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CustomModalSheet(product: product),
+      builder: (context) => CustomViewDetailsModalSheet(product: product),
     );
   }
 
@@ -330,7 +330,7 @@ class _DisplayScreenState extends State<DisplayScreen> {
                             itemCount: _filteredProducts.length,
                             itemBuilder: (context, index) {
                               final product = _filteredProducts[index];
-                              return CustomCard(
+                              return CustomViewItemCard(
                                 product: product,
                                 onTap: () => _showProductDetails(product),
                               );
