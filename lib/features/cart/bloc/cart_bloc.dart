@@ -49,6 +49,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
   void _clearData(CartClearData event, Emitter<CartState> emit) {
     emit(CartUpdated(cartItems: []));
+
+    _repository.clearCart();
   }
 
   bool isInCart(int productId) {
