@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test_app/config/theme.dart';
+import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
+import 'package:flutter_test_app/features/cart/repositories/cart_repository.dart';
 import 'package:flutter_test_app/features/display/bloc/display_bloc.dart';
 import 'package:flutter_test_app/features/display/repositories/display_repository.dart';
 import 'package:flutter_test_app/shared/screens/splashscreen.dart';
@@ -11,8 +13,12 @@ void main() {
       providers: [
         BlocProvider(
           create: (context) =>
-              DisplayBloc(displayRepository: DisplayRepository())
+              DisplayBloc(repository: DisplayRepository())
                 ..add(DisplayLoadData()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              CartBloc(repository: CartRepository())..add(CartLoadData()),
         ),
       ],
       child: const MainApp(),

@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
+import 'package:flutter_test_app/features/cart/screens/cart_screen.dart';
 import 'package:flutter_test_app/features/display/bloc/display_bloc.dart';
 import 'package:flutter_test_app/features/display/models/product_model.dart';
 import 'package:flutter_test_app/shared/widgets/custom_card.dart';
@@ -337,25 +339,64 @@ class _DisplayScreenState extends State<DisplayScreen> {
                   ),
                 ],
               ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {},
-                // onPressed: () => Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => CartPage()),
-                // ),
-                backgroundColor: Colors.white,
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50),
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.secondary,
-                    width: 2,
-                  ),
-                ),
-                child: Icon(
-                  Icons.shopping_cart,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
+              floatingActionButton: BlocBuilder<CartBloc, CartState>(
+                builder: (context, cartState) {
+                  return Stack(
+                    children: [
+                      FloatingActionButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CartScreen(),
+                            ),
+                          );
+                        },
+                        backgroundColor: Colors.white,
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.secondary,
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          FluentIcons.cart_16_filled,
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+
+                      // Badge
+                      if (cartState.itemCount > 0)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 24,
+                              minHeight: 24,
+                            ),
+                            child: Text(
+                              '${cartState.itemCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             );
           }

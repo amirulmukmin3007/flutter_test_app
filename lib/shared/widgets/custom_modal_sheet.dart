@@ -1,4 +1,7 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test_app/features/cart/bloc/cart_bloc.dart';
 import 'package:flutter_test_app/features/display/models/product_model.dart';
 import 'package:flutter_test_app/shared/widgets/custom_fullscreen.dart';
 
@@ -179,20 +182,33 @@ class _CustomModalSheetState extends State<CustomModalSheet> {
                     const SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${widget.product.title} added to cart!',
-                              ),
-                              duration: const Duration(seconds: 2),
-                            ),
+                      child: BlocBuilder<CartBloc, CartState>(
+                        builder: (context, cartState) {
+                          final cartBloc = context.read<CartBloc>();
+                          final isInCart = cartBloc.isInCart(widget.product.id);
+                          return ElevatedButton.icon(
+                            onPressed: isInCart
+                                ? null
+                                : () {
+                                    context.read<CartBloc>().add(
+                                      CartAddItem(product: widget.product),
+                                    );
+
+                                    Navigator.pop(context);
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          '${widget.product.title} added to cart!',
+                                        ),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  },
+                            icon: const Icon(FluentIcons.cart_16_filled),
+                            label: const Text('Add to Cart'),
                           );
                         },
-                        icon: const Icon(Icons.shopping_cart),
-                        label: const Text('Add to Cart'),
                       ),
                     ),
                     const SizedBox(height: 16),
