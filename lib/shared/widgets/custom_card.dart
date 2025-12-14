@@ -81,8 +81,6 @@ class CustomViewItemCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(width: 16),
-
-                  // Product Info
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,8 +133,6 @@ class CustomViewItemCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Arrow Icon
                   Icon(
                     Icons.arrow_forward_ios,
                     color: Colors.grey.shade400,

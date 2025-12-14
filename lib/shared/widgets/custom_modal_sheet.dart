@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,7 +67,9 @@ class _CustomViewDetailsModalSheetState
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         image: DecorationImage(
-                          image: NetworkImage(widget.product.imageUrl),
+                          image: CachedNetworkImageProvider(
+                            widget.product.imageUrl,
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),

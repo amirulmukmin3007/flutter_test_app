@@ -21,15 +21,19 @@ class DisplayBloc extends Bloc<DisplayEvent, DisplayState> {
   ) async {
     emit(DisplayLoading());
 
-    List<ProductModel> products = [];
+    try {
+      List<ProductModel> products = [];
 
-    List<Map<String, dynamic>> data = await _displayRepository
-        .fetchProductList();
+      List<Map<String, dynamic>> data = await _displayRepository
+          .fetchProductList();
 
-    for (Map<String, dynamic> product in data) {
-      products.add(ProductModel.fromJson(product));
+      for (Map<String, dynamic> product in data) {
+        products.add(ProductModel.fromJson(product));
+      }
+
+      emit(DisplayDataLoaded(products: products));
+    } catch (e) {
+      emit(DisplayError(message: e.toString()));
     }
-
-    emit(DisplayDataLoaded(products: products));
   }
 }

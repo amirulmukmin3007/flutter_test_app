@@ -10,6 +10,7 @@ import 'package:flutter_test_app/features/display/models/product_model.dart';
 import 'package:flutter_test_app/shared/widgets/custom_card.dart';
 import 'package:flutter_test_app/shared/widgets/custom_chip.dart';
 import 'package:flutter_test_app/shared/widgets/custom_modal_sheet.dart';
+import 'package:flutter_test_app/shared/widgets/custom_throbber.dart';
 
 class DisplayScreen extends StatefulWidget {
   const DisplayScreen({super.key});
@@ -95,7 +96,14 @@ class _DisplayScreenState extends State<DisplayScreen> {
           if (state is DisplayLoading) {
             return Scaffold(
               backgroundColor: colors.primary,
-              body: Center(child: CircularProgressIndicator()),
+              body: Center(child: customThrobber()),
+            );
+          }
+
+          if (state is DisplayError) {
+            return Scaffold(
+              backgroundColor: colors.primary,
+              body: Center(child: Text(state.message)),
             );
           }
 
